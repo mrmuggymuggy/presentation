@@ -1,285 +1,285 @@
 <!doctype html>
 <html lang="en">
 
-	<head>
-		<meta charset="utf-8">
+    <head>
+        <meta charset="utf-8">
 
-		<title>reveal.js – The HTML Presentation Framework</title>
+        <title>reveal.js – The HTML Presentation Framework</title>
 
-		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
-		<meta name="author" content="Zhaolong">
+        <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+        <meta name="author" content="Zhaolong">
 
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<link rel="stylesheet" href="../css/reset.css">
-		<link rel="stylesheet" href="../css/reveal.css">
-		<link rel="stylesheet" href="../css/theme/serif.css" id="theme">
+        <link rel="stylesheet" href="../css/reset.css">
+        <link rel="stylesheet" href="../css/reveal.css">
+        <link rel="stylesheet" href="../css/theme/serif.css" id="theme">
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="../lib/css/monokai.css">
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="../lib/css/monokai.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? '../css/print/pdf.css' : '../css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? '../css/print/pdf.css' : '../css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
 
-		<!--[if lt IE 9]>
-		<script src="lib/js/html5shiv.js"></script>
-		<![endif]-->
-	</head>
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
 
-	<body>
+    <body>
 
-		<div class="reveal">
+        <div class="reveal">
 
-			<!-- Any section element inside of this container is displayed as a slide -->
-			<div class="slides">
-				<section>
-					<h2>Let's discuss Makefile</h2>
-					<h3>Story of Love, Curse and Hate</h3>
-				</section>
+            <!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
+                <section>
+                    <h2>Let's discuss Makefile</h2>
+                    <h3>Story of Love, Curse and Hate</h3>
+                </section>
 
-				<section>
-					<h3>What do we use Makefile for</h3>
-					<ul>
-						<li>Build our apps locally and remotely</li>
-						<li>Deploy our apps locally and remotely</li>
-					</ul>
-				</section>
+                <section>
+                    <h3>What do we use Makefile for</h3>
+                    <ul>
+                        <li>Build our apps locally and remotely</li>
+                        <li>Deploy our apps locally and remotely</li>
+                    </ul>
+                </section>
 
-				<section>
-					<h3>Problem 1, Variable Passing and Management</h3>
-					<section data-markdown>
-						<script type="text/template">
-							Makefile:
-							```
-							ENV ?= local
-							COMMIT ?= $(shell git rev-parse --short HEAD)
-							deploy:
-								UUID=`uuidgen | cut -c1-5`; \
-								helm template --set-string kafka_streams.uuid=$$UUID, kafka_streams.env=$(ENV)...
-							```
-							Ansible:
-							```
-							vars:
-								env : "{{ lookup('env','ENV')|default('local', true) }}"
-								git_commit_id: "{{ lookup('pipe','git rev-parse --short HEAD') }}"
-							- name: Deploy application to kubernetes 
-						      shell: |
-						        helm template  --set-string kafka_streams.uuid= {{ uuid }} kafka_streams.env= {{ env }} ...
-						      vars:
-						        uuid: {{ git_commit_id | to_uuid }}	
+                <section>
+                    <h3>Problem 1, Variable Passing and Management</h3>
+                    <section data-markdown>
+                        <script type="text/template">
+                            Makefile:
+                            ```
+                            ENV ?= local
+                            COMMIT ?= $(shell git rev-parse --short HEAD)
+                            deploy:
+                                UUID=`uuidgen | cut -c1-5`; \
+                                helm template --set-string kafka_streams.uuid=$$UUID, kafka_streams.env=$(ENV)...
+                            ```
+                            Ansible:
+                            ```
+                            vars:
+                                env : "{{ lookup('env','ENV')|default('local', true) }}"
+                                git_commit_id: "{{ lookup('pipe','git rev-parse --short HEAD') }}"
+                            - name: Deploy application to kubernetes 
+                              shell: |
+                                helm template  --set-string kafka_streams.uuid= {{ uuid }} kafka_streams.env= {{ env }} ...
+                              vars:
+                                uuid: {{ git_commit_id | to_uuid }} 
 
-							```
-						</script>
-					</section>
-				</section>
+                            ```
+                        </script>
+                    </section>
+                </section>
 
-				<section>
-					<h3>Problem 2, Execution Order and dependencies</h3>
-					<section data-markdown>
-						<script type="text/template">
-							Makefile:
-							```
-							target1: 
-								echo 1
-							target2: 
-								echo 2
-							target3: target1 target2
-								echo 3
-							#How Can fucking print 1 3 2 if I want?!
-							```
-							Ansible:
-							```
-							- name: target1
-						      shell: |
-						        echo 1
-						 	- name: target2
-						      shell: |
-						        echo 2
-						    #linear execution order!!
-							```
-						</script>
-					</section>
-				</section>
+                <section>
+                    <h3>Problem 2, Execution Order and dependencies</h3>
+                    <section data-markdown>
+                        <script type="text/template">
+                            Makefile:
+                            ```
+                            target1: 
+                                echo 1
+                            target2: 
+                                echo 2
+                            target3: target1 target2
+                                echo 3
+                            #How Can fucking print 1 3 2 if I want?!
+                            ```
+                            Ansible:
+                            ```
+                            - name: target1
+                              shell: |
+                                echo 1
+                            - name: target2
+                              shell: |
+                                echo 2
+                            #linear execution order!!
+                            ```
+                        </script>
+                    </section>
+                </section>
 
-				<section>
-					<h3>Problem 3, conditions loops etc</h3>
-					<section data-markdown>
-						<script type="text/template">
-							Makefile:
-							```
-							build:
-								ifeq ($(ENV), local)
-									sbt -DdockerProject="$(PROJECT_NAME)" -DdockerNamespace="data" -DdockerRegistry="$(DOCKER_REGISTRY)" dockerBuildAndPush
-								else
-									sbt -DdockerProject="$(PROJECT_NAME)" -DdockerNamespace="data" -DdockerRegistry="$(DOCKER_REGISTRY)" docker
-								endif
-							```
-							Ansible:
-							```
-						    - name: Build and push stream app docker file on gitlab runner
-						      shell: |
-						        sbt -DdockerProject="{{ project_name }}" -DdockerNamespace="data" -DdockerRegistry="{{ docker_registry }}" -DdockerTag="{{docker_tag}}" dockerBuildAndPush
-						      vars:
-						        docker_tag: "{{ branch_name }}-{{ sbt_version }}-{{ git_commit_id }}"
-						      when: 
-						        - env != "local"
-						        - command == 'build'
+                <section>
+                    <h3>Problem 3, conditions loops etc</h3>
+                    <section data-markdown>
+                        <script type="text/template">
+                            Makefile:
+                            ```
+                            build:
+                                ifeq ($(ENV), local)
+                                    sbt -DdockerProject="$(PROJECT_NAME)" -DdockerNamespace="data" -DdockerRegistry="$(DOCKER_REGISTRY)" dockerBuildAndPush
+                                else
+                                    sbt -DdockerProject="$(PROJECT_NAME)" -DdockerNamespace="data" -DdockerRegistry="$(DOCKER_REGISTRY)" docker
+                                endif
+                            ```
+                            Ansible:
+                            ```
+                            - name: Build and push stream app docker file on gitlab runner
+                              shell: |
+                                sbt -DdockerProject="{{ project_name }}" -DdockerNamespace="data" -DdockerRegistry="{{ docker_registry }}" -DdockerTag="{{docker_tag}}" dockerBuildAndPush
+                              vars:
+                                docker_tag: "{{ branch_name }}-{{ sbt_version }}-{{ git_commit_id }}"
+                              when: 
+                                - env != "local"
+                                - command == 'build'
 
-						    - name: Build and push stream app docker file on local
-						      shell: |
-						        set -e
-						        eval $(minikube docker-env)
-						        sbt -DdockerProject="{{ project_name }}" -DdockerNamespace="data" -DdockerRegistry="{{ docker_registry }}" -DdockerTag="{{docker_tag}}" docker
-						      vars:
-						        docker_tag: "{{ branch_name }}-{{ sbt_version }}-{{ git_commit_id }}"
-						      when: 
-						        - env == "local"
-						        - command == 'build'
-							```
-						</script>
-					</section>
-				</section>
+                            - name: Build and push stream app docker file on local
+                              shell: |
+                                set -e
+                                eval $(minikube docker-env)
+                                sbt -DdockerProject="{{ project_name }}" -DdockerNamespace="data" -DdockerRegistry="{{ docker_registry }}" -DdockerTag="{{docker_tag}}" docker
+                              vars:
+                                docker_tag: "{{ branch_name }}-{{ sbt_version }}-{{ git_commit_id }}"
+                              when: 
+                                - env == "local"
+                                - command == 'build'
+                            ```
+                        </script>
+                    </section>
+                </section>
 
 
-				<section>
-					<h3>Problem 4, Env replace(templating)</h3>
-					<section data-markdown>
-						<script type="text/template">
-							Makefile:
-							```
-							deploy_demo: 
-								set -o allexport; source ../../environments/$(ENV).properties; set +o allexport
-								envsubst < template.deployment.yaml > generated.deployment.yaml
-							#WTF?!!!!!
-						    ###
-						    dev.properties
-					    	---
-							DEBUG=1
-							WEB_PORT=[8000:8000]
-							WEB_IMAGE="python:2.7"
-							###
-							template.deployment.conf
-							---
-							version: '2'
-							services:
-							  web:
-							    from: ${WEB_IMAGE}
-							    roles:
-							    - role: apache
-							    ports: ${WEB_PORT}
-							    command: ['sleep', '10']
-							    dev_overrides:
-							        environment:
-							        - DEBUG=${DEBUG}
-							registries: {}
-							```
-							Ansible:
-							```
-							vars_files: 
-    							- devel.yaml
-    						- name: demo
-						      template:
-						        src: deploy.yaml.j2
-						        dest: deploy.yaml
-						    ###
-						    devel.yaml
-					    	---
-							debug: 1
-							web:
-								ports:
-							  	- 8000:8000
-								image: "python:2.7"
-							###
-						    deploy.yaml.j2
-					    	---
-							version: '2'
-							services:
-							  web:
-							    from: {{ web.image }}
-							    roles:
-							    - role: apache
-							    ports: {{ web.ports }}
-							    command: ['sleep', '10']
-							    dev_overrides:
-							        environment:
-							        - DEBUG={{ debug }}
-							registries: {}
-							```
-						</script>
-					</section>
-				</section>
+                <section>
+                    <h3>Problem 4, Env replace(templating)</h3>
+                    <section data-markdown>
+                        <script type="text/template">
+                            Makefile:
+                            ```
+                            deploy_demo: 
+                                set -o allexport; source ../../environments/$(ENV).properties; set +o allexport
+                                envsubst < template.deployment.yaml > generated.deployment.yaml
+                            #WTF?!!!!!
+                            ###
+                            dev.properties
+                            ---
+                            DEBUG=1
+                            WEB_PORT=[8000:8000]
+                            WEB_IMAGE="python:2.7"
+                            ###
+                            template.deployment.conf
+                            ---
+                            version: '2'
+                            services:
+                              web:
+                                from: ${WEB_IMAGE}
+                                roles:
+                                - role: apache
+                                ports: ${WEB_PORT}
+                                command: ['sleep', '10']
+                                dev_overrides:
+                                    environment:
+                                    - DEBUG=${DEBUG}
+                            registries: {}
+                            ```
+                            Ansible:
+                            ```
+                            vars_files: 
+                                - devel.yaml
+                            - name: demo
+                              template:
+                                src: deploy.yaml.j2
+                                dest: deploy.yaml
+                            ###
+                            devel.yaml
+                            ---
+                            debug: 1
+                            web:
+                                ports:
+                                - 8000:8000
+                                image: "python:2.7"
+                            ###
+                            deploy.yaml.j2
+                            ---
+                            version: '2'
+                            services:
+                              web:
+                                from: {{ web.image }}
+                                roles:
+                                - role: apache
+                                ports: {{ web.ports }}
+                                command: ['sleep', '10']
+                                dev_overrides:
+                                    environment:
+                                    - DEBUG={{ debug }}
+                            registries: {}
+                            ```
+                        </script>
+                    </section>
+                </section>
 
-				<section>
-					<h3>Problem 5, system dependencies</h3>
-					<section data-markdown>
-						<script type="text/template">
-							Makefile:
-							```
-								#run bash script to check system dep
-							```
-							Ansible:
-							```
-						    	#built-in support!
-							```
-						</script>
-					</section>
-				</section>
+                <section>
+                    <h3>Problem 5, system dependencies</h3>
+                    <section data-markdown>
+                        <script type="text/template">
+                            Makefile:
+                            ```
+                                #run bash script to check system dep
+                            ```
+                            Ansible:
+                            ```
+                                #built-in support!
+                            ```
+                        </script>
+                    </section>
+                </section>
 
-				<section>
-					<h3>Problem 6, too much dependency tools!!!</h3>
-					<section data-markdown>
-						<script type="text/template">
-							Makefile:
-							```
-							  #envsub/jq/yaml2json
-							  #someof them are system tools, some of them are pip tools
-							```
-							Ansible:
-							```
-						    	#built-in support
-							```
-						</script>
-					</section>
-				</section>
+                <section>
+                    <h3>Problem 6, too much dependency tools!!!</h3>
+                    <section data-markdown>
+                        <script type="text/template">
+                            Makefile:
+                            ```
+                              #envsub/jq/yaml2json
+                              #someof them are system tools, some of them are pip tools
+                            ```
+                            Ansible:
+                            ```
+                                #built-in support
+                            ```
+                        </script>
+                    </section>
+                </section>
 
-			</div>
+            </div>
 
-		</div>
+        </div>
 
-		<script src="../js/reveal.js"></script>
+        <script src="../js/reveal.js"></script>
 
-		<script>
+        <script>
 
-			// More info https://github.com/hakimel/reveal.js#configuration
-			Reveal.initialize({
-				controls: true,
-				progress: true,
-				center: true,
-				hash: true,
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                center: true,
+                hash: true,
 
-				transition: 'slide', // none/fade/slide/convex/concave/zoom
+                transition: 'slide', // none/fade/slide/convex/concave/zoom
 
-				// More info https://github.com/hakimel/reveal.js#dependencies
-				dependencies: [
-					{ src: '../plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: '../plugin/highlight/highlight.js', async: true },
-					{ src: '../plugin/search/search.js', async: true },
-					{ src: '../plugin/zoom-js/zoom.js', async: true },
-					{ src: '../plugin/notes/notes.js', async: true }
-				]
-			});
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    { src: '../plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: '../plugin/highlight/highlight.js', async: true },
+                    { src: '../plugin/search/search.js', async: true },
+                    { src: '../plugin/zoom-js/zoom.js', async: true },
+                    { src: '../plugin/notes/notes.js', async: true }
+                ]
+            });
 
-		</script>
+        </script>
 
-	</body>
+    </body>
 </html>
