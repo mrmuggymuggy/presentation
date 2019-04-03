@@ -62,12 +62,20 @@
 							```
 							ENV ?= local
 							COMMIT ?= $(shell git rev-parse --short HEAD)
+							deploy:
+								UUID=`uuidgen | cut -c1-5`; \
+								helm template --set-string kafka_streams.uuid=$$UUID, kafka_streams.env=$(ENV)...
 							```
 							Ansible:
 							```
 							vars:
 								env : "{{ lookup('env','ENV')|default('local', true) }}"
 								git_commit_id: "{{ lookup('pipe','git rev-parse --short HEAD') }}"
+							- name: Deploy application to kubernetes 
+						      shell: |
+						        helm template  --set-string kafka_streams.uuid= {{ uuid }} kafka_streams.env= {{ env }} ...
+						      vars:
+						        uuid: {{ git_commit_id | to_uuid }}	
 
 							```
 						</script>
@@ -75,60 +83,172 @@
 				</section>
 
 				<section>
-					<ul>
-						<li>Too high expectation to a relation?</li>
-						<li>The conviction that we are too unique and too distinct to be understanded by our kinds? </li>
-						<li>The conscience that there is always a part of non communicable between humain? </li>
-					</ul>
+					<h3>Problem 2, Execution Order and dependencies</h3>
+					<section data-markdown>
+						<script type="text/template">
+							Makefile:
+							```
+							target1: 
+								echo 1
+							target2: 
+								echo 2
+							target3: target1 target2
+								echo 3
+							#How Can fucking print 1 3 2 if I want?!
+							```
+							Ansible:
+							```
+							- name: target1
+						      shell: |
+						        echo 1
+						 	- name: target2
+						      shell: |
+						        echo 2
+						    #linear execution order!!
+							```
+						</script>
+					</section>
 				</section>
 
 				<section>
-					<p>
-						The loneliness is not just a suffer, it is also a route to our inner self, it is an occasion to us to introspect by suspending the actions and distractions
-					</p>
+					<h3>Problem 3, conditions loops etc</h3>
+					<section data-markdown>
+						<script type="text/template">
+							Makefile:
+							```
+							build:
+								ifeq ($(ENV), local)
+									sbt -DdockerProject="$(PROJECT_NAME)" -DdockerNamespace="data" -DdockerRegistry="$(DOCKER_REGISTRY)" dockerBuildAndPush
+								else
+									sbt -DdockerProject="$(PROJECT_NAME)" -DdockerNamespace="data" -DdockerRegistry="$(DOCKER_REGISTRY)" docker
+								endif
+							```
+							Ansible:
+							```
+						    - name: Build and push stream app docker file on gitlab runner
+						      shell: |
+						        sbt -DdockerProject="{{ project_name }}" -DdockerNamespace="data" -DdockerRegistry="{{ docker_registry }}" -DdockerTag="{{docker_tag}}" dockerBuildAndPush
+						      vars:
+						        docker_tag: "{{ branch_name }}-{{ sbt_version }}-{{ git_commit_id }}"
+						      when: 
+						        - env != "local"
+						        - command == 'build'
+
+						    - name: Build and push stream app docker file on local
+						      shell: |
+						        set -e
+						        eval $(minikube docker-env)
+						        sbt -DdockerProject="{{ project_name }}" -DdockerNamespace="data" -DdockerRegistry="{{ docker_registry }}" -DdockerTag="{{docker_tag}}" docker
+						      vars:
+						        docker_tag: "{{ branch_name }}-{{ sbt_version }}-{{ git_commit_id }}"
+						      when: 
+						        - env == "local"
+						        - command == 'build'
+							```
+						</script>
+					</section>
 				</section>
 
 
 				<section>
-					<p>
-						Some even consider it as a part of spirituel hygene, The loneliness is to our spirit is as the diet to our body, mortal when it lasts too long, but very essential -- Marquis de Vauvenargues
-					</p>
+					<h3>Problem 4, Env replace(templating)</h3>
+					<section data-markdown>
+						<script type="text/template">
+							Makefile:
+							```
+							deploy_demo: 
+								set -o allexport; source ../../environments/$(ENV).properties; set +o allexport
+								envsubst < template.deployment.yaml > generated.deployment.yaml
+							#WTF?!!!!!
+						    ###
+						    dev.properties
+					    	---
+							DEBUG=1
+							WEB_PORT=[8000:8000]
+							WEB_IMAGE="python:2.7"
+							###
+							template.deployment.conf
+							---
+							version: '2'
+							services:
+							  web:
+							    from: ${WEB_IMAGE}
+							    roles:
+							    - role: apache
+							    ports: ${WEB_PORT}
+							    command: ['sleep', '10']
+							    dev_overrides:
+							        environment:
+							        - DEBUG=${DEBUG}
+							registries: {}
+							```
+							Ansible:
+							```
+							vars_files: 
+    							- devel.yaml
+    						- name: demo
+						      template:
+						        src: deploy.yaml.j2
+						        dest: deploy.yaml
+						    ###
+						    devel.yaml
+					    	---
+							debug: 1
+							web:
+								ports:
+							  	- 8000:8000
+								image: "python:2.7"
+							###
+						    deploy.yaml.j2
+					    	---
+							version: '2'
+							services:
+							  web:
+							    from: {{ web.image }}
+							    roles:
+							    - role: apache
+							    ports: {{ web.ports }}
+							    command: ['sleep', '10']
+							    dev_overrides:
+							        environment:
+							        - DEBUG={{ debug }}
+							registries: {}
+							```
+						</script>
+					</section>
 				</section>
 
 				<section>
-					<p>
-						When the loneliness is not daily based as an emotional prison, it could even act as a source of fertility. Knowing how to be alone allows us to be truly with ourself without the distractions of the social activities
-					</p>
+					<h3>Problem 5, system dependencies</h3>
+					<section data-markdown>
+						<script type="text/template">
+							Makefile:
+							```
+								#run bash script to check system dep
+							```
+							Ansible:
+							```
+						    	#built-in support!
+							```
+						</script>
+					</section>
 				</section>
 
 				<section>
-					<p>
-						Today, with our technologies, it removes our time of to be alone, some recent studies shows, paradoxically, time spent in front of screens, even accentuate our feeling of loneliness
-					</p>
-				</section>
-
-				<section>
-					<p>
-						I believe, the feeling of loneless is neither to be flighted nor to be fleed away, it is to be explored, as a part of essential uncomfortable moment of our spiritual self.
-					</p>
-				</section>
-
-				<section>
-					<p>
-						Maybe the difficulty does not lay on the loneliness, it might be the wrong usage of our social connections, the loneliness is to make us even appreciate more moments of connection, sharing and fraternity
-					</p>
-				</section>
-				<section>
-					<p>
-						It can also help us to inspect our excessive and irrealistical expections to our closed ones, calm down our desires to be understanded on our feelings. because it is useless to attempt in living in a fusion and perfect understanding, it is better to attach to a regular and imperfect exchanges
-					</p>
-				</section>
-
-				<section>
-					<h2>Conclusions</h2>
-					<p>
-						To be humain, is to accept sincerely our part of innate loneliness, there is always a small part of us non communicable, non sharable. By knowing the feeling of loneliness is experienced and shared by all of us, maybe, it makes us feel less lonely
-					</p>
+					<h3>Problem 6, too much dependency tools!!!</h3>
+					<section data-markdown>
+						<script type="text/template">
+							Makefile:
+							```
+							  #envsub/jq/yaml2json
+							  #someof them are system tools, some of them are pip tools
+							```
+							Ansible:
+							```
+						    	#built-in support
+							```
+						</script>
+					</section>
 				</section>
 
 			</div>
