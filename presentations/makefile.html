@@ -58,7 +58,6 @@
                     <h3>Problem 1, Variable Passing and Management</h3>
                     <section data-markdown>
                         <script type="text/template">
-                            Makefile:
                             ```
                             ENV ?= local
                             COMMIT ?= $(shell git rev-parse --short HEAD)
@@ -66,7 +65,7 @@
                                 UUID=`uuidgen | cut -c1-5`; \
                                 helm template --set-string kafka_streams.uuid=$$UUID, kafka_streams.env=$(ENV)...
                             ```
-                            Ansible:
+                            
                             ```
                             vars:
                                 env : "{{ lookup('env','ENV')|default('local', true) }}"
@@ -86,7 +85,6 @@
                     <h3>Problem 2, Execution Order and dependencies</h3>
                     <section data-markdown>
                         <script type="text/template">
-                            Makefile:
                             ```
                             target1: 
                                 echo 1
@@ -96,7 +94,6 @@
                                 echo 3
                             #How Can fucking print 1 3 2 if I want?!
                             ```
-                            Ansible:
                             ```
                             - name: target1
                               shell: |
@@ -114,7 +111,6 @@
                     <h3>Problem 3, conditions loops etc</h3>
                     <section data-markdown>
                         <script type="text/template">
-                            Makefile:
                             ```
                             build:
                                 ifeq ($(ENV), local)
@@ -123,7 +119,6 @@
                                     sbt -DdockerProject="$(PROJECT_NAME)" -DdockerNamespace="data" -DdockerRegistry="$(DOCKER_REGISTRY)" docker
                                 endif
                             ```
-                            Ansible:
                             ```
                             - name: Build and push stream app docker file on gitlab runner
                               shell: |
@@ -154,7 +149,6 @@
                     <h3>Problem 4, Env replace(templating)</h3>
                     <section data-markdown>
                         <script type="text/template">
-                            Makefile:
                             ```
                             deploy_demo: 
                                 set -o allexport; source ../../environments/$(ENV).properties; set +o allexport
@@ -182,7 +176,6 @@
                                     - DEBUG=${DEBUG}
                             registries: {}
                             ```
-                            Ansible:
                             ```
                             vars_files: 
                                 - devel.yaml
