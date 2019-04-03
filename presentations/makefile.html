@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js – The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Zhaolong">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="../css/reset.css">
+		<link rel="stylesheet" href="../css/reveal.css">
+		<link rel="stylesheet" href="../css/theme/serif.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="../lib/css/monokai.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? '../css/print/pdf.css' : '../css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h2>Let's discuss Makefile</h2>
+					<h3>Story of Love, Curse and Hate</h3>
+				</section>
+
+				<section>
+					<h3>What do we use Makefile for</h3>
+					<ul>
+						<li>Build our apps locally and remotely</li>
+						<li>Deploy our apps locally and remotely</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Problem 1, Variable Passing and Management</h3>
+					<section data-markdown>
+						<script type="text/template">
+							Makefile:
+							```
+							ENV ?= local
+							COMMIT ?= $(shell git rev-parse --short HEAD)
+							```
+							Ansible:
+							```
+							vars:
+								env : "{{ lookup('env','ENV')|default('local', true) }}"
+								git_commit_id: "{{ lookup('pipe','git rev-parse --short HEAD') }}"
+
+							```
+						</script>
+					</section>
+				</section>
+
+				<section>
+					<ul>
+						<li>Too high expectation to a relation?</li>
+						<li>The conviction that we are too unique and too distinct to be understanded by our kinds? </li>
+						<li>The conscience that there is always a part of non communicable between humain? </li>
+					</ul>
+				</section>
+
+				<section>
+					<p>
+						The loneliness is not just a suffer, it is also a route to our inner self, it is an occasion to us to introspect by suspending the actions and distractions
+					</p>
+				</section>
+
+
+				<section>
+					<p>
+						Some even consider it as a part of spirituel hygene, The loneliness is to our spirit is as the diet to our body, mortal when it lasts too long, but very essential -- Marquis de Vauvenargues
+					</p>
+				</section>
+
+				<section>
+					<p>
+						When the loneliness is not daily based as an emotional prison, it could even act as a source of fertility. Knowing how to be alone allows us to be truly with ourself without the distractions of the social activities
+					</p>
+				</section>
+
+				<section>
+					<p>
+						Today, with our technologies, it removes our time of to be alone, some recent studies shows, paradoxically, time spent in front of screens, even accentuate our feeling of loneliness
+					</p>
+				</section>
+
+				<section>
+					<p>
+						I believe, the feeling of loneless is neither to be flighted nor to be fleed away, it is to be explored, as a part of essential uncomfortable moment of our spiritual self.
+					</p>
+				</section>
+
+				<section>
+					<p>
+						Maybe the difficulty does not lay on the loneliness, it might be the wrong usage of our social connections, the loneliness is to make us even appreciate more moments of connection, sharing and fraternity
+					</p>
+				</section>
+				<section>
+					<p>
+						It can also help us to inspect our excessive and irrealistical expections to our closed ones, calm down our desires to be understanded on our feelings. because it is useless to attempt in living in a fusion and perfect understanding, it is better to attach to a regular and imperfect exchanges
+					</p>
+				</section>
+
+				<section>
+					<h2>Conclusions</h2>
+					<p>
+						To be humain, is to accept sincerely our part of innate loneliness, there is always a small part of us non communicable, non sharable. By knowing the feeling of loneliness is experienced and shared by all of us, maybe, it makes us feel less lonely
+					</p>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="../js/reveal.js"></script>
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				center: true,
+				hash: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: '../plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../plugin/highlight/highlight.js', async: true },
+					{ src: '../plugin/search/search.js', async: true },
+					{ src: '../plugin/zoom-js/zoom.js', async: true },
+					{ src: '../plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
